@@ -4,16 +4,19 @@
 
 (defn startPublisher
   [endPoint]
-  (with-open [sock (nn/socket :push {:bind endPoint})]
-    (doseq [name ["Foo" "Bar" "Baz"]]
-      (nn/send! sock name))))
+  (with-open [sock (nn/socket :pub {:bind endPoint})]
+    (loop []
+      (Thread/sleep 1000)
+      (println "publishing")
+      (nn/send! sock "This is a publication")
+      (recur))))
 
 (defn startSubscriber
   [endPoint]
-  (with-open [sock (nn/socket :pull)]
+  (with-open [sock (nn/socket :sub)]
     (nn/connect! sock endPoint)
     (dotimes [i 3]
-      (println "Hello " (nn/recv! sock)))))
+      (println (nn/recv! sock)))))
 
 (defn startServer
   [endPoint]
@@ -29,18 +32,18 @@
       (nn/send! sock (str "msg:" 1))
       (println "Received:" (nn/recv! sock)))))
 
-(def PUB_END_POINT "tcp://*:2714")
-(def SUB_END_POINT "tcp://localhost:2714")
-;(def PUB_END_POINT "inproc://my-endpoint")
-;(def SUB_END_POINT "inproc://my-endpoint")
+;(def PUB_END_POINT "tcp://*:2714")
+;(def SUB_END_POINT "tcp://localhost:2714")
+(def PUB_END_POINT "ipc:///tmp/endpoint")
+(def SUB_END_POINT "ipc:///tmp/endpoint")
 
 (defn -main
   "I don't do a whole lot ... yet."
   [& args]
   (do
-    (println "server up")
-    (.start (Thread. (startServer PUB_END_POINT)))
-    (.start (Thread. (startClient SUB_END_POINT)))))
+    (future (startPublisher PUB_END_POINT))
+    (startSubscriber SUB_END_POINT)
+    (println "server up")))
     ;(.start (Thread. (startPublisher PUB_END_POINT)))
     ;(.start (Thread. (startSubscriber SUB_END_POINT)))
     ;(.start (Thread. (startSubscriber SUB_END_POINT)))))
