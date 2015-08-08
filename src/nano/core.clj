@@ -32,10 +32,12 @@
       (nn/send! sock (str "msg:" 1))
       (println "Received:" (nn/recv! sock)))))
 
-;(def PUB_END_POINT "tcp://*:2714")
-;(def SUB_END_POINT "tcp://localhost:2714")
-(def PUB_END_POINT "ipc:///tmp/endpoint")
-(def SUB_END_POINT "ipc:///tmp/endpoint")
+(def PUB_END_POINT "tcp://*:2714")
+(def SUB_END_POINT "tcp://localhost:2714")
+;(def PUB_END_POINT "inproc://my-endpoint")
+;(def SUB_END_POINT "inproc://my-endpoint")
+;(def PUB_END_POINT "ipc://my-endpoint")
+;(def SUB_END_POINT "ipc://my-endpoint")
 
 (defn -main
   "I don't do a whole lot ... yet."
@@ -43,8 +45,5 @@
   (do
     (future (startPublisher PUB_END_POINT))
     (startSubscriber SUB_END_POINT)
-    (println "server up")))
-    ;(.start (Thread. (startPublisher PUB_END_POINT)))
-    ;(.start (Thread. (startSubscriber SUB_END_POINT)))
-    ;(.start (Thread. (startSubscriber SUB_END_POINT)))))
+    (println "done")))
 
